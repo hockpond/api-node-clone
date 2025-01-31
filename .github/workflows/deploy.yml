@@ -1,7 +1,7 @@
 name: api-node
 on:
   push:
-    branches: [ "pipeline" ]
+    branches: [ "main" ]
 jobs:
   api-node-deploy:
     runs-on: ubuntu-latest
