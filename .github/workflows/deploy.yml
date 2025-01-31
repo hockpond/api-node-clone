@@ -1,0 +1,24 @@
+name: api-node
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Select the release type based on changes"
+        required: true
+        default: "minor"
+        type: choice
+        options:
+          - minor
+          - major
+          - patch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Bump version
+      run: echo "VERSION=$(npm version ${{ inputs.release_type }} | cut -c2-" >> $GITHUB_ENV
+    - name: Docker Build
+      run: docker build -t node-hello-api:$VERSION .
