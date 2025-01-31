@@ -41,6 +41,13 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Nova versão: $VERSION"
 
+    - name: Push to GitHub
+      run: |
+        git commit -m "v${{ env.VERSION }}"
+        git push origin $${{ github.ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
     - name: Docker Build
       run: docker build -t node-hello-api:$VERSION .
 
@@ -58,12 +65,5 @@ jobs:
         name: v${{ env.VERSION }}
         body: |
           Release gerada a partir da branch ${{ env.BRANCH_NAME }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-
-    - name: Push to GitHub
-      run: |
-        git commit -m "v${{ env.VERSION }}"
-        git push
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
