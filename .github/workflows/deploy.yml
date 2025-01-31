@@ -10,6 +10,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+
+    - name: Cofiguring Git
+      run: |
+        git config user.name $GITHUB_ACTOR
+        git config user.email gh-actions-${GITHUB_ACTOR}@github.com
+
     - name: Get release type
       run: |
         BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
