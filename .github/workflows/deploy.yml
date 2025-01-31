@@ -2,23 +2,24 @@ name: api-node
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      release_type:
-        description: "Select the release type based on changes"
-        required: true
-        default: "minor"
-        type: choice
-        options:
-          - minor
-          - major
-          - patch
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Get release type
+      run: |
+        BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+        if [[ "$BRANCH_NAME" == release/* ]]; then
+          echo "RELEASE_TYPE=major" >> $GITHUB_ENV
+        elif [[ "$BRANCH_NAME" == feature/* ]]; then
+          echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+        elif [[ "$BRANCH_NAME" == hotfix/* ]]; then
+          echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+        else
+          echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+        fi
     - name: Bump version
-      run: echo "VERSION=$(npm version ${{ inputs.release_type }} | cut -c2-" >> $GITHUB_ENV
+      run: echo "VERSION=$(npm version $RELEASE_TYPE | cut -c2-)" >> $GITHUB_ENV
     - name: Docker Build
       run: docker build -t node-hello-api:$VERSION .
