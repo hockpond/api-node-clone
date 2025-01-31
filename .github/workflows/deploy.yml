@@ -18,20 +18,25 @@ jobs:
       run: |
         BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
         if [[ "$BRANCH_NAME" == release/* ]]; then
-          echo "RELEASE_TYPE=major" >> $GITHUB_ENV
+          RELEASE_TYPE=major
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         elif [[ "$BRANCH_NAME" == feature/* ]]; then
-          echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+          RELEASE_TYPE=minor
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         elif [[ "$BRANCH_NAME" == hotfix/* ]]; then
-          echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          RELEASE_TYPE=patch
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         else
-          echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          RELEASE_TYPE=patch
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         fi
 
         echo "Tipo de release: $RELEASE_TYPE"
 
     - name: Bump version
       run: |
-        echo "VERSION=$(npm version $RELEASE_TYPE | cut -c2-)" >> $GITHUB_ENV
+        VERSION=$(npm version $RELEASE_TYPE | cut -c2-)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Nova versão: $VERSION"
 
     - name: Docker Build
