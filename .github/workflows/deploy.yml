@@ -2,23 +2,64 @@ name: api-node
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      release_type:
-        description: "Select the release type based on changes"
-        required: true
-        default: "minor"
-        type: choice
-        options:
-          - minor
-          - major
-          - patch
 jobs:
-  build:
+  api-node-deploy:
     runs-on: ubuntu-latest
+    environment: Production
+
     steps:
     - uses: actions/checkout@v4
+
+    - name: Cofiguring Git
+      run: |
+        git config user.name $GITHUB_ACTOR
+        git config user.email ${GITHUB_ACTOR}@github.com
+
+    - name: Get release type
+      run: |
+        BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+        if [[ "$BRANCH_NAME" == release/* ]]; then
+          RELEASE_TYPE=major
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
+        elif [[ "$BRANCH_NAME" == feature/* ]]; then
+          RELEASE_TYPE=minor
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
+        elif [[ "$BRANCH_NAME" == hotfix/* ]]; then
+          RELEASE_TYPE=patch
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
+        else
+          RELEASE_TYPE=patch
+          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
+        fi
+
+        echo "Tipo de release: $RELEASE_TYPE"
+
     - name: Bump version
-      run: echo "VERSION=$(npm version ${{ inputs.release_type }} | cut -c2-" >> $GITHUB_ENV
+      run: |
+        VERSION=$(npm version $RELEASE_TYPE -m "$RELEASE_TYPE version %s"| cut -c2-)
+        git push origin ${{ github.ref }}
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Nova versão: $VERSION"
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
     - name: Docker Build
       run: docker build -t node-hello-api:$VERSION .
+
+    - name: Docker Push
+      run: |
+        echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login --username ${{ secrets.DOCKER_USER }} --password-stdin
+        docker tag node-hello-api:$VERSION ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
+        docker push ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.VERSION }}
+        target_commitish: ${{ env.BRANCH_NAME }}
+        name: v${{ env.VERSION }}
+        body: |
+          Release gerada a partir da branch ${{ env.BRANCH_NAME }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
