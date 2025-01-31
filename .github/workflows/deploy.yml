@@ -37,7 +37,7 @@ jobs:
 
     - name: Bump version
       run: |
-        VERSION=$(npm version $RELEASE_TYPE | cut -c2-)
+        VERSION=$(npm version $RELEASE_TYPE -m "$RELEASE_TYPE version %s"| cut -c2-)
         git push origin ${{ github.ref }}
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Nova versão: $VERSION"
