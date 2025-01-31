@@ -1,6 +1,8 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = process.env.API_PORT;
 
 // Rota de Hello World
 app.get('/hello', (req, res) => {
