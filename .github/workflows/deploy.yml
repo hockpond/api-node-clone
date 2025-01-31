@@ -5,7 +5,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
 
@@ -27,8 +27,12 @@ jobs:
           echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
         fi
 
+        echo "Tipo de release: $RELEASE_TYPE"
+
     - name: Bump version
-      run: echo "VERSION=$(npm version $RELEASE_TYPE | cut -c2-)" >> $GITHUB_ENV
+      run: |
+        echo "VERSION=$(npm version $RELEASE_TYPE | cut -c2-)" >> $GITHUB_ENV
+        echo "Nova versão: $VERSION"
 
     - name: Docker Build
       run: docker build -t node-hello-api:$VERSION .
