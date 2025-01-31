@@ -5,6 +5,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+    
     steps:
     - uses: actions/checkout@v4
     - name: Get release type
@@ -19,7 +22,9 @@ jobs:
         else
           echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
         fi
+
     - name: Bump version
       run: echo "VERSION=$(npm version $RELEASE_TYPE | cut -c2-)" >> $GITHUB_ENV
+
     - name: Docker Build
       run: docker build -t node-hello-api:$VERSION .
