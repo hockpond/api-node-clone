@@ -55,7 +55,7 @@ jobs:
       with:
         tag_name: v${{ env.VERSION }}
         target_commitish: ${{ env.BRANCH_NAME }}
-        name: "Release ${{ env.BRANCH_NAME }}
+        name: "Release ${{ env.BRANCH_NAME }}"
         body: |
           Release gerada a partir da branch ${{ env.BRANCH_NAME }}
       env:
