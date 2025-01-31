@@ -17,7 +17,7 @@ jobs:
 
     - name: Get release type
       run: |
-        BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+        BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's|refs/heads/||')
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
         if [[ "$BRANCH_NAME" == release/* ]]; then
           RELEASE_TYPE=major
