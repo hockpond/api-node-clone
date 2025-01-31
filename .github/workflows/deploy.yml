@@ -5,7 +5,7 @@ on:
 jobs:
   api-node-deploy:
     runs-on: ubuntu-latest
-    environemnt: Production
+    environment: Production
 
     steps:
     - uses: actions/checkout@v4
