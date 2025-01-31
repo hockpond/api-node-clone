@@ -3,8 +3,9 @@ on:
   push:
     branches: [ "pipeline" ]
 jobs:
-  build:
+  api-node-deploy:
     runs-on: ubuntu-latest
+    environemnt: Production
 
     steps:
     - uses: actions/checkout@v4
@@ -17,6 +18,7 @@ jobs:
     - name: Get release type
       run: |
         BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
         if [[ "$BRANCH_NAME" == release/* ]]; then
           RELEASE_TYPE=major
           echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
@@ -41,3 +43,20 @@ jobs:
 
     - name: Docker Build
       run: docker build -t node-hello-api:$VERSION .
+
+    - name: Docker Push
+      run: |
+        docker login -u ${{ secrets.DOCKER_USER }} -p {{ secrets.DOCKER_ACCESS_TOKEN }}
+        docker tag node-hello-api:$VERSION ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
+        docker push ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.VERSION }}
+        target_commitish: ${{ env.BRANCH_NAME }}
+        name: "Release ${{ env.BRANCH_NAME }}
+        body: |
+          Release gerada a partir da branch ${{ env.BRANCH_NAME }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
