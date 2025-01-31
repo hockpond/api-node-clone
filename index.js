@@ -4,7 +4,7 @@ const port = 3000;
 
 // Rota de Hello World
 app.get('/hello', (req, res) => {
-    res.json({ message: 'Hello, World!' });
+    res.json({ message: 'Hello, World!!' });
 });
 
 // Rota de Health Check
