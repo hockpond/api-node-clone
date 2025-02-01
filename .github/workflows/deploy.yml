@@ -76,7 +76,7 @@ jobs:
       uses: azure/setup-kubectl@v4
     
     - name: Set up deployment file
-      run: "find ./deploy -name \"*.yml\" -exec sed -i '' 's/image: .*/image: $VERSION/' {};"
+      run: "find ./deploy -name \"*.yml\" -exec sed -i '' 's/image: .*/image: $VERSION/' {} +"
 
     - name: Deploy
       run: kubectl apply -f deployment.yml --server ${{ secrets.KUBERNETES_URL }} --insecure-skip-tls-verify
