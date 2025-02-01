@@ -1,7 +1,7 @@
 name: api-node
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test_deploy" ]
 jobs:
   api-node-deploy:
     runs-on: ubuntu-latest
