@@ -15,17 +15,25 @@ jobs:
         git config user.name $GITHUB_ACTOR
         git config user.email ${GITHUB_ACTOR}@github.com
 
+    - name: Get the source branch name
+      run: |
+        SOURCE_BRANCH=$(curl -s https://api.github.com/repos/${{ github.repository }}/pulls?state=closed | jq -r ".[] | select(.merge_commit_sha==\"${{ github.sha }}\") | .head.ref")
+        echo "SOURCE_BRANCH=$SOURCE_BRANCH" >> $GITHUB_ENV
+        
+        echo "Deploy iniciado a partir de merge da branch $SOURCE_BRANCH"
+
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Get release type
       run: |
-        BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
-        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        if [[ "$BRANCH_NAME" == release/* ]]; then
+        if [[ "$SOURCE_BRANCH" == release/* ]]; then
           RELEASE_TYPE=major
           echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
-        elif [[ "$BRANCH_NAME" == feature/* ]]; then
+        elif [[ "$SOURCE_BRANCH" == feature/* ]]; then
           RELEASE_TYPE=minor
           echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
-        elif [[ "$BRANCH_NAME" == hotfix/* ]]; then
+        elif [[ "$SOURCE_BRANCH" == hotfix/* ]]; then
           RELEASE_TYPE=patch
           echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         else
@@ -60,7 +68,7 @@ jobs:
         target_commitish: ${{ env.BRANCH_NAME }}
         name: v${{ env.VERSION }}
         body: |
-          Release gerada a partir da branch ${{ env.BRANCH_NAME }}
+          Release gerada a partir da branch ${{ env.SOURCE_BRANCH }}
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
 
