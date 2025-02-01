@@ -63,3 +63,12 @@ jobs:
           Release gerada a partir da branch ${{ env.BRANCH_NAME }}
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
+    - name: Set up Kubectl
+      uses: azure/setup-kubectl@v4
+    
+    - name: Set up deployment file
+      run: find ./deploy -name "*.yml" -exec sed -i '' 's/image: .*/image: $VERSION/' {}
+
+    - name: Deploy
+      run: kubectl apply -f deployment.yml --server ${{ secrets.KUBERNETES_URL }} --insecure-skip-tls-verify
