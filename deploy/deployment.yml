@@ -17,10 +17,10 @@ spec:
         image: <<preenchido automaticamente>>
         resources:
           requests:
-            cpu: "10m"
+            cpu: "30m"
             memory: "128Mi"
           limits:
-            cpu: "20m"
+            cpu: "60m"
             memory: "512Mi" 
         env:
         - name: API_PORT
