@@ -80,3 +80,4 @@ jobs:
 
     - name: Deploy
       run: kubectl apply -f ./deploy/ --server=${{ secrets.KUBERNETES_URL }} --token=${{ secrets.KUBERNETES_TOKEN }} --insecure-skip-tls-verify
+      
