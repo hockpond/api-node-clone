@@ -8,7 +8,7 @@ const port = process.env.API_PORT;
 app.get('/hello', (req, res) => {
     console.log("GET /hello")
 
-    res.json({ message: 'Hello, World!' });
+    res.json({ message: 'Hello, World :)' });
 });
 
 // Rota de Health Check
