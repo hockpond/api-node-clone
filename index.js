@@ -6,11 +6,13 @@ const port = process.env.API_PORT;
 
 // Rota de Hello World
 app.get('/hello', (req, res) => {
+    console.log("GET /hello")
     res.json({ message: 'Hello, World!' });
 });
 
 // Rota de Health Check
 app.get('/health', (req, res) => {
+    console.log("GET /health")
     res.json({ status: 'UP' });
 });
 
