@@ -12,6 +12,8 @@ Esse repositório visa conter os arquivos necessários para deployar uma aplica�
 
 - Instalar o ngrok ([Documentação de apoio](https://download.ngrok.com/downloads))
 
+- Instalar o helm ([Documentação de apoio](https://helm.sh/docs/intro/install/))
+
 ## Preparando o ambiente
 
 1. Iniciar o minikube:
@@ -85,3 +87,24 @@ ngrok http 8080
 ```
 
 12. Copie a URL pública exibida no campo **Forwarding** e salve na variável **KUBERNETES_URL** do environment **Production** deste repositório ([settings -> Environments -> Production](https://github.com/hockpond/api-node-clone/settings/environments/5401300279/edit)). Essa URL será usada para disparar o deploy através do GitHub Actions
+
+14. Instale o Prometheus e o Grafana com o helm
+```sh
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install monitoring prometheus-community/kube-prometheus-stack
+```
+
+15. Instale o Loki com o helm
+```sh
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm upgrade --install loki grafana/loki-stack
+```
+
+15. Faça um redirecionamento de portas para poder acessar os serviços localmente
+```sh
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
+kubectl port-forward svc/monitoring-grafana 3001:80
+kubectl port-forward svc/loki 3100:3100
+```
