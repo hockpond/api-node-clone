@@ -1,7 +1,7 @@
 name: api-node
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test_deploy" ]
 jobs:
   api-node-deploy:
     runs-on: ubuntu-latest
@@ -53,12 +53,12 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
 
     - name: Docker Build
-      run: docker build -t node-hello-api:$VERSION .
+      run: docker build -t api-node-upbet:$VERSION .
 
     - name: Docker Push
       run: |
         echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login --username ${{ secrets.DOCKER_USER }} --password-stdin
-        docker tag node-hello-api:$VERSION ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
+        docker tag api-node-upbet:$VERSION ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
         docker push ${{ secrets.DOCKER_USER }}/api-node-upbet:$VERSION
 
     - name: Release
@@ -76,7 +76,8 @@ jobs:
       uses: azure/setup-kubectl@v4
     
     - name: Set up deployment file
-      run: find ./deploy -name "*.yml" -exec sed -i '' 's/image: .*/image: $VERSION/' {}
+      run: "find ./deploy -name '*.yml' -exec sed -i 's/image: .*/image: ${{ secrets.DOCKER_USER }}\\/api-node-upbet:${{ env.VERSION }}/' {} +"
 
     - name: Deploy
-      run: kubectl apply -f deployment.yml --server ${{ secrets.KUBERNETES_URL }} --insecure-skip-tls-verify
+      run: kubectl apply -f ./deploy/ --server=${{ secrets.KUBERNETES_URL }} --token=${{ secrets.KUBERNETES_TOKEN }} --insecure-skip-tls-verify
+      
