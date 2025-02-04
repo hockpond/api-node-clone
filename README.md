@@ -88,14 +88,14 @@ ngrok http 8080
 
 12. Copie a URL pública exibida no campo **Forwarding** e salve na variável **KUBERNETES_URL** do environment **Production** deste repositório ([settings -> Environments -> Production](https://github.com/hockpond/api-node-clone/settings/environments/5401300279/edit)). Essa URL será usada para disparar o deploy através do GitHub Actions
 
-14. Instale o Prometheus e o Grafana com o helm
+13. Instale o Prometheus e o Grafana com o helm
 ```sh
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install monitoring prometheus-community/kube-prometheus-stack
 ```
 
-15. Instale o Loki com o helm
+14. Instale o Loki com o helm
 ```sh
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
@@ -108,3 +108,9 @@ kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
 kubectl port-forward svc/monitoring-grafana 3001:80
 kubectl port-forward svc/loki 3100:3100
 ```
+
+16. Adicione o Loki como uma fonte de dados no Grafana
+
+   - Para acessar o Grafana, acesse a url **http://localhost:3001** e logue com as credenciais **admin** (usuário) e **prom-operator** (senha)
+   - Vá em **Connections -> Data sources -> Add new data source -> Loki**
+   - Insira no campo **URL** o valor **http://loki:3100** e clique em **Save & test** (é possível que apresente um erro no teste, mas a fonte de dados já foi adicionada e pode ser consumida sem problemas)
