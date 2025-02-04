@@ -29,7 +29,7 @@
         "type": "grafana",
         "id": "grafana",
         "name": "Grafana",
-        "version": "11.4.0"
+        "version": "11.4.1"
       },
       {
         "type": "panel",
@@ -174,7 +174,7 @@
             "sort": "none"
           }
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
             "datasource": {
@@ -263,7 +263,7 @@
             "titleSize": 15
           }
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
             "datasource": {
@@ -378,7 +378,7 @@
             "sort": "none"
           }
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
             "datasource": {
@@ -467,7 +467,7 @@
             "titleSize": 15
           }
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
             "datasource": {
@@ -571,19 +571,19 @@
             "sort": "none"
           }
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${DS_PROMETHEUS}"
+            },
             "editorMode": "code",
             "expr": "count(kube_pod_container_info{pod=~\"api-node.*\"})",
             "hide": false,
             "legendFormat": "Number of replicas",
             "range": true,
-            "refId": "A",
-            "datasource": {
-              "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
-            }
+            "refId": "A"
           }
         ],
         "title": "Replicas",
@@ -640,19 +640,19 @@
           "textMode": "auto",
           "wideLayout": true
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${DS_PROMETHEUS}"
+            },
             "editorMode": "code",
             "expr": "count(kube_pod_container_info{pod=~\"api-node.*\"})",
             "hide": false,
             "legendFormat": "__auto",
             "range": true,
-            "refId": "A",
-            "datasource": {
-              "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
-            }
+            "refId": "A"
           }
         ],
         "title": "Replicas",
@@ -680,7 +680,7 @@
           "sortOrder": "Descending",
           "wrapLogMessage": false
         },
-        "pluginVersion": "11.4.0",
+        "pluginVersion": "11.4.1",
         "targets": [
           {
             "datasource": {
@@ -702,9 +702,8 @@
     "templating": {
       "list": [
         {
-          "allValue": "",
           "current": {},
-          "definition": "label_values(kube_pod_container_info{container=~\"api-node\"},pod)",
+          "definition": "label_values(kube_pod_container_info{container=~\"api-node.*\"},pod)",
           "includeAll": true,
           "label": "Pod",
           "multi": true,
@@ -712,7 +711,7 @@
           "options": [],
           "query": {
             "qryType": 1,
-            "query": "label_values(kube_pod_container_info{container=~\"api-node\"},pod)",
+            "query": "label_values(kube_pod_container_info{container=~\"api-node.*\"},pod)",
             "refId": "PrometheusVariableQueryEditor-VariableQuery"
           },
           "refresh": 1,
@@ -729,6 +728,6 @@
     "timezone": "browser",
     "title": "api-node",
     "uid": "cebz1vt2rflz4d",
-    "version": 25,
+    "version": 2,
     "weekStart": ""
 }
