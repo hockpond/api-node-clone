@@ -16,24 +16,24 @@ Esse repositório visa conter os arquivos necessários para deployar uma aplica�
 
 ## Preparando o ambiente
 
-1. Iniciar o minikube:
+1. Inicie o minikube:
 ```sh
 minikube start
 ```
 
-2. Habilitar o addon de métricas do Kubernetes
+2. Habilite o addon de métricas do Kubernetes
 ```sh
 minikube addons enable metrics-server
 ```
 
-3. Criar uma ServiceAccount no Kubernetes que será usada para autenticar no cluster e realizar o Deploy
+3. Crie uma ServiceAccount no Kubernetes que será usada para autenticar no cluster e realizar o Deploy
 ```sh
 kubectl create serviceaccount ci-deployer -n default
 ```
 
-4. Criar role para a ServiceAccount com as permissões necessárias
+4. Crie uma role para a ServiceAccount com as permissões necessárias
 
-   4.1 Criar o arquivo **serviceaccount.yml** com o seguinte conteúdo:
+   4.1 Crie o arquivo **serviceaccount.yml** com o seguinte conteúdo:
    ```yml
    apiVersion: rbac.authorization.k8s.io/v1
    kind: Role
@@ -48,12 +48,12 @@ kubectl create serviceaccount ci-deployer -n default
       resources: ["services", "configmaps"]
       verbs: ["get", "list", "create", "update", "delete", "patch"]
    ```
-   4.2 Aplicar o arquivo no Kubernetes
+   4.2 Aplique o arquivo no Kubernetes
    ```sh
    kubectl apply -f serviceaccount.yml
    ```
 
-5. Atrelar a role a ServiceAccount criadas
+5. Atrele a role a ServiceAccount criadas
 ```sh
 kubectl create rolebinding deployer-binding --role=deployment-manager --serviceaccount=default:ci-deployer --namespace=default
 ```
@@ -63,15 +63,15 @@ kubectl create rolebinding deployer-binding --role=deployment-manager --servicea
 kubectl create token ci-deployer -n default
 ```
 
-7. Salvar o token na variável **KUBERNETES_TOKEN** do environment **Production** deste repositório ([settings -> Environments -> Production](https://github.com/hockpond/api-node-clone/settings/environments/5401300279/edit)). Isso é necessário para que o workflow do GitHub Actions consiga recuperar o valor do token e realizar o deploy da aplicação. As demais variáveis não precisam ser alteradas por hora.
+7. Salve o token na variável **KUBERNETES_TOKEN** do environment **Production** deste repositório ([settings -> Environments -> Production](https://github.com/hockpond/api-node-clone/settings/environments/5401300279/edit)). Isso é necessário para que o workflow do GitHub Actions consiga recuperar o valor do token e realizar o deploy da aplicação. As demais variáveis não precisam ser alteradas por hora.
 
-8. Criar um túnel de conexão entre sua máquina local e o cluster Kubernetes (isso é necessário para poder expor os serviços e acessálos pelo IP de sua máquina local)
+8. Crie um túnel de conexão entre sua máquina local e o cluster Kubernetes (isso é necessário para poder expor os serviços e acessálos pelo IP de sua máquina local)
 
 ```sh
 sudo minikube tunnel
 ```
 
-9. Habilitar um proxy que exponha o cluster na porta **8080** para a internet (necessário para que o workflow do GitHut Actions consiga fazer requisições de deploy para o cluster)
+9. Habilite um proxy que exponha o cluster na porta **8080** para a internet (necessário para que o workflow do GitHut Actions consiga fazer requisições de deploy para o cluster)
 ```sh
 kubectl proxy --address='0.0.0.0' --accept-hosts='^*$' --port=8080
 ``` 
@@ -114,3 +114,47 @@ kubectl port-forward svc/loki 3100:3100
    - Para acessar o Grafana, acesse a url **http://localhost:3001** e logue com as credenciais **admin** (usuário) e **prom-operator** (senha)
    - Vá em **Connections -> Data sources -> Add new data source -> Loki**
    - Insira no campo **URL** o valor **http://loki:3100** e clique em **Save & test** (é possível que apresente um erro no teste, mas a fonte de dados já foi adicionada e pode ser consumida sem problemas)
+
+17. Crie o dashboard de monitoramento no Grafana
+   - Acesse **Dashboards -> New -> Import -> Upload dashboard JSON file** e selecione o arquivo presente em ./grafana_config/dashboard.json
+
+18. Crie os alertas no Grafana
+   - Acesse **Alerting -> Alert rules -> New alert rule**
+   - Uso de memória
+      - Passo 1
+         -   Defina um nome (Ex: Memory usage > 80%)
+      - Passo 2
+         - No campo de query, selecione a query do tipo **code** e insira: **(sum by(pod) (container_memory_usage_bytes{pod=~"api-node.*"}) * 100) / sum by(pod) (kube_pod_container_resource_limits{resource="memory"})**
+         - Modifique na Expression **C** o valor de 0 para 80 no campo **IS ABOVE**
+      - Passo 3
+         - Clique em **New folder** e crie uma pasta
+         - Clique em **New evaluation group, defina um nome e mantenha o intervalo padrão
+      - Passo 4
+         - Selecione o Contact point padrão criado pelo Grafana
+      - Salve
+   - Uso de CPU
+      - Passo 1
+         -   Defina um nome (Ex: CPU usage > 80%)
+      - Passo 2
+         - No campo de query, selecione a query do tipo **code** e insira: **(sum by(pod) (rate(container_cpu_usage_seconds_total{pod=~"api-node.*"}[5m])) * 100) / sum by(pod) (kube_pod_container_resource_limits{resource="cpu"})**
+         - Modifique na Expression **C** o valor de 0 para 80 no campo **IS ABOVE**
+      - Passo 3
+         - Selecione a pasta criada
+         - Selecione o evalutation group criado
+      - Passo 4
+         - Selecione o Contact point padrão criado pelo Grafana
+      - Salve
+   - Quantidade de répicas
+      - Passo 1
+         -   Defina um nome (Ex: Number of replicas < 2)
+      - Passo 2
+         - No campo de query, selecione a query do tipo **code** e insira: **count(kube_pod_container_info{pod=~"api-node.*"})**
+         - Modifique na Expression **C** o valor de 0 para 2 e troque de **IS ABOVE** por **IS BELOW**
+      - Passo 3
+         - Selecione a pasta criada
+         - Selecione o evalutation group criado
+      - Passo 4
+         - Selecione o Contact point padrão criado pelo Grafana
+      - Salve
+
+
