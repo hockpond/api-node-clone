@@ -17,7 +17,7 @@ spec:
         image: <<preenchido automaticamente>>
         resources:
           requests:
-            cpu: "5m"
+            cpu: "20m"
             memory: "256Mi"
           limits:
             cpu: "35m"
