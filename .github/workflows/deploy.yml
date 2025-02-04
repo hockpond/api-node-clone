@@ -29,18 +29,15 @@ jobs:
       run: |
         if [[ "$SOURCE_BRANCH" == release/* ]]; then
           RELEASE_TYPE=major
-          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         elif [[ "$SOURCE_BRANCH" == feature/* ]]; then
           RELEASE_TYPE=minor
-          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         elif [[ "$SOURCE_BRANCH" == hotfix/* ]]; then
           RELEASE_TYPE=patch
-          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         else
           RELEASE_TYPE=patch
-          echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         fi
 
+        echo "RELEASE_TYPE=$RELEASE_TYPE" >> $GITHUB_ENV
         echo "Tipo de release: $RELEASE_TYPE"
 
     - name: Bump version
